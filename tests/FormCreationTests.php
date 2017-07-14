@@ -5,7 +5,7 @@ use PayuClassicPhp\Src\Form\FormOpen;
 use PayuClassicPhp\Src\Form\FormToHtml;
 use PayuClassicPhp\Src\PayuForm;
 
-class PayuClassicPhpTest extends PHPUnit_Framework_TestCase
+class FormCreationTests extends PHPUnit_Framework_TestCase
 {
     public function testHtmlFormFieldsCreation()
     {
@@ -66,5 +66,4 @@ class PayuClassicPhpTest extends PHPUnit_Framework_TestCase
             ), 'Error in sandbox version of form open'
         );
     }
-
 }

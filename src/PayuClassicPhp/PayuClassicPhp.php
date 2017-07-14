@@ -44,6 +44,11 @@ class PayuClassicPhp
 		$this->posAuthKey = $posAuthKey;
 	}
 
+	/**
+	 * @param $postData
+	 * @param $test
+	 * @return \SimpleXMLElement
+	 */
 	public function receiveTransaction($postData, $test)
 	{
 		$receive = new ReceiveTransaction($this->posId, $this->key1, $this->key2, $test);

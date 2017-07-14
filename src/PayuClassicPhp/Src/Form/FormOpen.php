@@ -2,7 +2,6 @@
 
 namespace PayuClassicPhp\Src\Form;
 
-
 use PayuClassicPhp\Src\PayuConst;
 
 class FormOpen implements FormOpenInterface

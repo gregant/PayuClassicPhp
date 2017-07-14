@@ -2,7 +2,6 @@
 
 namespace PayuClassicPhp\Src;
 
-
 final class PayuConst
 {
 	const REQUEST_FORM_URL = 'https://secure.payu.com/paygw/UTF';

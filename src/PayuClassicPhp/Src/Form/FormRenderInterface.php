@@ -2,7 +2,6 @@
 
 namespace PayuClassicPhp\Src\Form;
 
-
 interface FormRenderInterface
 {
 	public function setData($data);

@@ -2,8 +2,10 @@
 
 namespace PayuClassicPhp\Src;
 
-
+use PayuClassicPhp\Src\Exception\InvalidPosidException;
 use PayuClassicPhp\Src\Exception\InvalidRequestDataException;
+use PayuClassicPhp\Src\Exception\InvalidSigException;
+use PayuClassicPhp\Src\Exception\PayuResponseIsEmpty;
 use Prophecy\Exception\Exception;
 
 class ReceiveTransaction
@@ -30,14 +32,13 @@ class ReceiveTransaction
 	{
 		$this->validateRequest($postData);
 		$response = $this->getPaymentData($postData);
-		$this->validateResponse($response->trans);
+		$this->validateResponse($response);
 
 		return $response;
 	}
 
 	/**
 	 * @param $postData
-	 * @throws InvalidRequestDataException
 	 */
 	private function validateRequest($postData)
 	{
@@ -48,13 +49,13 @@ class ReceiveTransaction
 		}
 
 		if ($postData['pos_id'] != $this->posId) {
-			throw  new InvalidRequestDataException(sprintf("Invalid pos_id '%s'",
+			throw new InvalidPosidException(sprintf("Invalid pos_id '%s'",
 				$postData['pos_id']));
 		}
 
 		$firstSigCheck = md5($postData['pos_id'] . $postData['session_id'] . $postData['ts'] . $this->key2);
 		if ($postData['sig'] != md5($postData['pos_id'] . $postData['session_id'] . $postData['ts'] . $this->key2)) {
-			throw new InvalidRequestDataException(sprintf("Invalid sig '%s' != '%s'",
+			throw new InvalidSigException(sprintf("Invalid sig '%s' != '%s'",
 				$postData['sig'], $firstSigCheck));
 		}
 	}
@@ -112,28 +113,36 @@ class ReceiveTransaction
 
 	/**
 	 * @param $response
+	 * @throws PayuResponseIsEmpty
 	 */
 	private function validateResponse($response)
 	{
-		if (!isset($response->pos_id) || !isset($response->session_id) || !isset($response->order_id) || !isset($response->status)
-			|| !isset($response->amount) || !isset($response->desc) || !isset($response->ts)
-		) {
-			throw new InvalidRequestDataException(
-				sprintf("Missing params in response '%s'", print_r($response, true)
+		if( !isset($response->trans) ) {
+			throw new PayuResponseIsEmpty(sprintf("Missing params in Payu response '%s'",
+				print_r($response, true)
 			));
 		}
 
-		if ($response->pos_id != $this->posId) {
+		$trans = $response->trans;
+		if (!isset($trans->pos_id) || !isset($trans->session_id) || !isset($trans->order_id) || !isset($trans->status)
+			|| !isset($trans->amount) || !isset($trans->desc) || !isset($trans->ts)
+		) {
+			throw new InvalidRequestDataException(
+				sprintf("Missing params in response '%s'", print_r($trans, true)
+			));
+		}
+
+		if ($trans->pos_id != $this->posId) {
 			throw  new InvalidRequestDataException(
-				sprintf("Invalid pos_id in response '%s'",$response->pos_id)
+				sprintf("Invalid pos_id in response '%s'",$trans->pos_id)
 			);
 		}
 
-		$sig = md5($response->pos_id . $response->session_id . $response->order_id . $response->status .
-			$response->amount . $response->desc . $response->ts . $this->key2);
-		if ($sig != $response->sig) {
+		$sig = md5($trans->pos_id . $trans->session_id . $trans->order_id . $trans->status .
+			$trans->amount . $trans->desc . $trans->ts . $this->key2);
+		if ($sig != $trans->sig) {
 			throw new InvalidRequestDataException(
-				sprintf("Invalid sig in response '%s' != '%s'", $response->sig, $sig
+				sprintf("Invalid sig in response '%s' != '%s'", $trans->sig, $sig
 			));
 		}
 	}
