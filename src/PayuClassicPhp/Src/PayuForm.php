@@ -144,7 +144,9 @@ class PayuForm
 		$formData = [];
 
 		foreach( get_class_vars(get_class($this)) as $key => $value ) {
-			$formData[$key] = $this->{$key};
+            if( $this->{$key} != '') {
+                $formData[$key] = $this->{$key};
+            }
 		}
 		$formData['pos_id'] = $posId;
 		$formData['pos_auth_key'] = $posAuthKey;

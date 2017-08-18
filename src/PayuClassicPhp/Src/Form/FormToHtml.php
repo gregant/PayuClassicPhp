@@ -24,7 +24,9 @@ class FormToHtml implements FormRenderInterface
     {
         $formRendered = '';
         foreach ($this->data as $name => $value) {
-            $formRendered .= $this->inputField($name, $value);
+            if( $value != '') {
+                $formRendered .= $this->inputField($name, $value);
+            }
         }
 
         return $formRendered;
